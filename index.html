@@ -2,30 +2,66 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPlan Official - RPS Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EduPlan Mobile - RPS Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
         
-        /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        /* Hide Scrollbar for clean look */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animation */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mobile Input Styling */
+        .mobile-input {
+            width: 100%;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .mobile-input:focus {
+            background: #fff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
 
         /* PRINT STYLING - STRICT ACADEMIC FORMAT */
         @media print {
             @page { size: A4; margin: 1cm; }
-            body { background: white; color: black; font-family: 'Times New Roman', serif !important; }
+            body { background: white; color: black; font-family: 'Times New Roman', serif !important; padding: 0; margin: 0; }
             
             /* Hide UI Elements */
-            .no-print, .sidebar, header, .floating-btn { display: none !important; }
+            .no-print, .mobile-nav, .floating-print, header, aside { display: none !important; }
             .print-only { display: block !important; }
 
-            /* Table Styles for RPS */
+            /* Table Styles */
             table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11pt; page-break-inside: avoid; }
             th, td { border: 1px solid black; padding: 4px 6px; vertical-align: top; text-align: left; }
             th { background-color: #e5e7eb !important; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; }
@@ -33,391 +69,410 @@
             /* Typography */
             h1, h2, h3 { font-family: 'Times New Roman', serif; margin: 0; font-weight: bold; }
             p, li { font-size: 11pt; line-height: 1.3; }
-            
-            /* Inputs clean up */
-            .print-area input { border: none; background: transparent; width: 100%; }
         }
         
         .print-only { display: none; }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden text-slate-800">
+<body class="flex flex-col h-screen overflow-hidden text-slate-800">
 
-    <aside class="sidebar w-64 bg-slate-900 text-white flex flex-col z-20 hidden md:flex shrink-0">
+    <aside class="hidden md:flex flex-col w-64 bg-slate-900 text-white h-full fixed left-0 top-0 z-30">
         <div class="p-6 border-b border-slate-700">
-            <h1 class="font-bold text-xl tracking-wide">EduPlan <span class="text-blue-400">Official</span></h1>
-            <p class="text-xs text-slate-400">Standar SN-Dikti</p>
+            <h1 class="font-bold text-xl tracking-wide">EduPlan <span class="text-blue-400">Pro</span></h1>
+            <p class="text-xs text-slate-400">RPS Generator</p>
         </div>
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-            <button onclick="showTab('info')" class="nav-item w-full text-left px-4 py-3 rounded hover:bg-slate-800 transition flex gap-3 items-center active-nav bg-blue-600">
-                <i class="fas fa-university w-5"></i> Identitas MK
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="switchTab('info')" class="nav-desk w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition flex gap-3 items-center active-desk bg-primary">
+                <i class="fas fa-university w-6"></i> Identitas MK
             </button>
-            <button onclick="showTab('cpl')" class="nav-item w-full text-left px-4 py-3 rounded hover:bg-slate-800 transition flex gap-3 items-center">
-                <i class="fas fa-bullseye w-5"></i> CPL & CPMK
+            <button onclick="switchTab('cpl')" class="nav-desk w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition flex gap-3 items-center">
+                <i class="fas fa-bullseye w-6"></i> CPL & CPMK
             </button>
-            <button onclick="showTab('materi')" class="nav-item w-full text-left px-4 py-3 rounded hover:bg-slate-800 transition flex gap-3 items-center">
-                <i class="fas fa-book w-5"></i> Materi & Pustaka
+            <button onclick="switchTab('materi')" class="nav-desk w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition flex gap-3 items-center">
+                <i class="fas fa-book w-6"></i> Materi & Pustaka
             </button>
-            <button onclick="showTab('matriks')" class="nav-item w-full text-left px-4 py-3 rounded hover:bg-slate-800 transition flex gap-3 items-center">
-                <i class="fas fa-table w-5"></i> Matriks Mingguan
+            <button onclick="switchTab('matriks')" class="nav-desk w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition flex gap-3 items-center">
+                <i class="fas fa-table w-6"></i> Matriks Mingguan
             </button>
         </nav>
-        <div class="p-4 border-t border-slate-700">
-            <button onclick="printRPS()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow transition flex items-center justify-center gap-2">
-                <i class="fas fa-print"></i> Cetak PDF
-            </button>
-        </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 relative">
-        <header class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center no-print">
-            <span class="font-bold">EduPlan Official</span>
-            <button onclick="printRPS()" class="text-sm bg-blue-500 px-3 py-1 rounded">Print</button>
+    <main class="flex-1 flex flex-col h-full relative md:ml-64 transition-all duration-300">
+        
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-20 no-print shadow-sm">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-800 text-sm leading-tight">RPS Generator</h1>
+                    <p class="text-[10px] text-slate-500">Universitas PGRI Sumatera Barat</p>
+                </div>
+            </div>
+            <button onclick="printRPS()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200">
+                <i class="fas fa-print"></i>
+            </button>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-20 scroll-smooth">
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 scroll-smooth" id="main-scroll">
             
-            <section id="tab-info" class="tab-content max-w-4xl mx-auto block animation-fade">
-                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
-                    <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Identitas Mata Kuliah & Otorisasi</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label class="label-ui">Nama Perguruan Tinggi</label>
-                            <input type="text" id="ui-univ" class="input-ui" value="UNIVERSITAS PGRI SUMATERA BARAT">
-                        </div>
-                        <div>
-                            <label class="label-ui">Fakultas / Prodi</label>
-                            <input type="text" id="ui-fakultas" class="input-ui" value="Fakultas Sains dan Teknologi / Pendidikan Informatika">
-                        </div>
-                        <div>
-                            <label class="label-ui">Nama Mata Kuliah</label>
-                            <input type="text" id="ui-mk" class="input-ui" placeholder="Contoh: Pemrograman Visual">
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-1/2">
-                                <label class="label-ui">Kode MK</label>
-                                <input type="text" id="ui-kode" class="input-ui" placeholder="INF-202">
-                            </div>
-                            <div class="w-1/2">
-                                <label class="label-ui">Rumpun MK</label>
-                                <input type="text" id="ui-rumpun" class="input-ui" placeholder="MK Keahlian">
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-1/3">
-                                <label class="label-ui">Bobot (SKS)</label>
-                                <input type="text" id="ui-sks" class="input-ui" value="3 SKS">
-                            </div>
-                            <div class="w-1/3">
-                                <label class="label-ui">Semester</label>
-                                <input type="text" id="ui-sem" class="input-ui" value="4">
-                            </div>
-                            <div class="w-1/3">
-                                <label class="label-ui">Tgl Penyusunan</label>
-                                <input type="date" id="ui-tgl" class="input-ui">
-                            </div>
-                        </div>
-                    </div>
+            <section id="tab-info" class="tab-content fade-in max-w-3xl mx-auto">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                    <h2 class="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-primary"></i> Info Dasar
+                    </h2>
                     
-                    <h3 class="font-bold text-sm text-slate-600 mb-3 uppercase bg-slate-100 p-2 rounded">Data Otorisasi (Tanda Tangan)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-4">
                         <div>
-                            <label class="label-ui">Dosen Pengembang RPS</label>
-                            <input type="text" id="ui-dosen" class="input-ui" placeholder="Nama Dosen...">
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Universitas</label>
+                            <input type="text" id="ui-univ" class="mobile-input" value="UNIVERSITAS PGRI SUMATERA BARAT">
                         </div>
                         <div>
-                            <label class="label-ui">Koordinator RMK</label>
-                            <input type="text" id="ui-rmk" class="input-ui" placeholder="Nama Koordinator...">
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Fakultas / Prodi</label>
+                            <input type="text" id="ui-fakultas" class="mobile-input" value="Fakultas Sains dan Teknologi / Pendidikan Informatika">
                         </div>
                         <div>
-                            <label class="label-ui">Ka. PRODI</label>
-                            <input type="text" id="ui-kaprodi" class="input-ui" placeholder="Nama Kaprodi...">
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Mata Kuliah</label>
+                            <input type="text" id="ui-mk" class="mobile-input font-bold text-slate-800" placeholder="Nama Mata Kuliah">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Kode MK</label>
+                                <input type="text" id="ui-kode" class="mobile-input" placeholder="INF-xxx">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Rumpun</label>
+                                <input type="text" id="ui-rumpun" class="mobile-input" placeholder="MK Keahlian">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">SKS</label>
+                                <input type="text" id="ui-sks" class="mobile-input text-center" value="3">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Sem</label>
+                                <input type="text" id="ui-sem" class="mobile-input text-center" value="4">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Tgl</label>
+                                <input type="date" id="ui-tgl" class="mobile-input px-1 text-xs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold mb-4 text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-signature text-primary"></i> Otorisasi
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Dosen Pengembang</label>
+                            <input type="text" id="ui-dosen" class="mobile-input" placeholder="Nama Dosen...">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Koordinator RMK</label>
+                            <input type="text" id="ui-rmk" class="mobile-input" placeholder="Nama Koordinator...">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">Ketua Prodi</label>
+                            <input type="text" id="ui-kaprodi" class="mobile-input" placeholder="Nama Kaprodi...">
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="tab-cpl" class="tab-content max-w-4xl mx-auto hidden animation-fade">
-                <div class="bg-white p-6 rounded-lg shadow border border-slate-200 space-y-6">
+            <section id="tab-cpl" class="tab-content fade-in hidden max-w-3xl mx-auto">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-6">
                     <div>
-                        <h3 class="font-bold mb-2">Capaian Pembelajaran Lulusan (CPL-PRODI)</h3>
-                        <textarea id="ui-cpl" class="input-ui h-32" placeholder="Tuliskan CPL program studi yang dibebankan pada mata kuliah ini..."></textarea>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-slate-800">CPL - PRODI</h3>
+                            <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-1 rounded-full">Wajib</span>
+                        </div>
+                        <textarea id="ui-cpl" class="mobile-input h-32" placeholder="Tuliskan CPL program studi..."></textarea>
                     </div>
                     <div>
-                        <h3 class="font-bold mb-2">Capaian Pembelajaran Mata Kuliah (CPMK)</h3>
-                        <textarea id="ui-cpmk" class="input-ui h-32" placeholder="Tuliskan CPMK..."></textarea>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-slate-800">CPMK (Mata Kuliah)</h3>
+                            <span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded-full">Turunan CPL</span>
+                        </div>
+                        <textarea id="ui-cpmk" class="mobile-input h-32" placeholder="Tuliskan CPMK..."></textarea>
                     </div>
                     <div>
-                        <h3 class="font-bold mb-2">Deskripsi Singkat Mata Kuliah</h3>
-                        <textarea id="ui-desc" class="input-ui h-24" placeholder="Deskripsi materi pembelajaran..."></textarea>
+                        <h3 class="font-bold text-slate-800 mb-2">Deskripsi Singkat MK</h3>
+                        <textarea id="ui-desc" class="mobile-input h-24" placeholder="Deskripsi materi pembelajaran..."></textarea>
                     </div>
                 </div>
             </section>
 
-            <section id="tab-materi" class="tab-content max-w-4xl mx-auto hidden animation-fade">
-                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
-                    <div class="mb-6">
-                        <h3 class="font-bold mb-2">Pustaka Utama & Pendukung</h3>
-                        <textarea id="ui-pustaka" class="input-ui h-32" placeholder="1. Penulis. Tahun. Judul. Penerbit.&#10;2. ..."></textarea>
-                        <p class="text-xs text-slate-500 mt-1">*Pisahkan dengan baris baru (Enter)</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+            <section id="tab-materi" class="tab-content fade-in hidden max-w-3xl mx-auto">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-4">
+                    <h3 class="font-bold text-slate-800 mb-2">Pustaka (Referensi)</h3>
+                    <textarea id="ui-pustaka" class="mobile-input h-40" placeholder="1. Penulis. Tahun. Judul. Penerbit.&#10;2. ..."></textarea>
+                </div>
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-4">Media Pembelajaran</h3>
+                    <div class="space-y-4">
                         <div>
-                            <label class="label-ui">Perangkat Lunak</label>
-                            <input type="text" id="ui-sw" class="input-ui" placeholder="Visual Studio, XAMPP...">
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1"><i class="fas fa-desktop mr-1"></i> Software</label>
+                            <input type="text" id="ui-sw" class="mobile-input" placeholder="Visual Studio, XAMPP, Browser...">
                         </div>
                         <div>
-                            <label class="label-ui">Perangkat Keras</label>
-                            <input type="text" id="ui-hw" class="input-ui" placeholder="PC, Proyektor...">
+                            <label class="text-xs font-semibold text-slate-500 uppercase mb-1 ml-1"><i class="fas fa-server mr-1"></i> Hardware</label>
+                            <input type="text" id="ui-hw" class="mobile-input" placeholder="PC, Proyektor, Whiteboard...">
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="tab-matriks" class="tab-content max-w-[95%] mx-auto hidden animation-fade">
-                <div class="bg-white p-6 rounded-lg shadow border border-slate-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">Rencana Pembelajaran Mingguan</h2>
-                        <button onclick="addRow()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2">
-                            <i class="fas fa-plus"></i> Tambah Baris
-                        </button>
-                    </div>
-                    
-                    <div class="overflow-x-auto border rounded">
-                        <table class="w-full text-left text-sm min-w-[1200px]">
+            <section id="tab-matriks" class="tab-content fade-in hidden w-full">
+                
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-4 text-xs text-blue-800 flex items-start gap-2">
+                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <p>Geser tabel ke kiri/kanan untuk mengisi detail kolom lainnya. Gunakan tombol (+) untuk menambah minggu.</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
                             <thead class="bg-slate-800 text-white">
                                 <tr>
-                                    <th class="p-3 w-12 text-center">Mg</th>
-                                    <th class="p-3 w-1/5">Sub-CPMK (Kemampuan Akhir)</th>
-                                    <th class="p-3 w-1/5">Bahan Kajian (Materi)</th>
-                                    <th class="p-3 w-1/6">Bentuk & Metode</th>
-                                    <th class="p-3 w-24">Waktu</th>
-                                    <th class="p-3 w-1/6">Pengalaman Belajar</th>
-                                    <th class="p-3 w-1/6">Kriteria & Indikator</th>
-                                    <th class="p-3 w-16">Bobot (%)</th>
-                                    <th class="p-3 w-10"></th>
+                                    <th class="p-3 w-10 text-center rounded-tl-lg">#</th>
+                                    <th class="p-3 min-w-[200px]">Sub-CPMK</th>
+                                    <th class="p-3 min-w-[200px]">Bahan Kajian</th>
+                                    <th class="p-3 min-w-[150px]">Metode</th>
+                                    <th class="p-3 min-w-[100px]">Waktu</th>
+                                    <th class="p-3 min-w-[200px]">Pengalaman</th>
+                                    <th class="p-3 min-w-[200px]">Indikator</th>
+                                    <th class="p-3 min-w-[80px]">Bobot</th>
+                                    <th class="p-3 w-10 text-center rounded-tr-lg"></th>
                                 </tr>
                             </thead>
-                            <tbody id="ui-tbody" class="divide-y divide-slate-200">
-                                <tr class="hover:bg-slate-50">
-                                    <td class="p-2"><input type="number" class="w-full p-1 border rounded text-center font-bold" value="1"></td>
-                                    <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                                    <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                                    <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                                    <td class="p-2"><input type="text" class="w-full p-2 border rounded input-cell" value="TM: 3x50'"></td>
-                                    <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                                    <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                                    <td class="p-2"><input type="number" class="w-full p-2 border rounded text-center input-cell" placeholder="0"></td>
-                                    <td class="p-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button></td>
+                            <tbody id="ui-tbody" class="divide-y divide-slate-100">
+                                <tr class="bg-white">
+                                    <td class="p-2"><input type="number" class="w-10 p-2 bg-slate-50 rounded text-center font-bold text-slate-500" value="1"></td>
+                                    <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                                    <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                                    <td class="p-2"><textarea rows="3" class="w-full min-w-[150px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                                    <td class="p-2"><input type="text" class="w-full min-w-[100px] p-2 border rounded" value="TM: 3x50'"></td>
+                                    <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                                    <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                                    <td class="p-2"><input type="number" class="w-full min-w-[60px] p-2 border rounded text-center" placeholder="0"></td>
+                                    <td class="p-2 text-center"><button onclick="this.closest('tr').remove()" class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100"><i class="fas fa-trash-alt"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+                
+                <div class="h-16"></div>
             </section>
 
         </div>
     </main>
 
+    <button onclick="addRow()" id="fab-add" class="fixed bottom-24 right-4 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-xl z-30 transition-transform active:scale-90 hidden hover:bg-blue-600 no-print">
+        <i class="fas fa-plus"></i>
+    </button>
+    
+    <button onclick="printRPS()" class="floating-print fixed bottom-24 left-4 bg-slate-800 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-lg z-30 transition-transform active:scale-90 md:hidden hover:bg-slate-700 no-print">
+        <i class="fas fa-print"></i>
+    </button>
+
+    <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 z-40 no-print pb-safe">
+        <div class="grid grid-cols-4 h-16">
+            <button onclick="switchTab('info')" class="nav-mob flex flex-col items-center justify-center text-slate-400 active-mob text-primary" data-target="info">
+                <i class="fas fa-university text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Info</span>
+            </button>
+            <button onclick="switchTab('cpl')" class="nav-mob flex flex-col items-center justify-center text-slate-400 hover:text-slate-600" data-target="cpl">
+                <i class="fas fa-bullseye text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">CPL</span>
+            </button>
+            <button onclick="switchTab('materi')" class="nav-mob flex flex-col items-center justify-center text-slate-400 hover:text-slate-600" data-target="materi">
+                <i class="fas fa-book text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Materi</span>
+            </button>
+            <button onclick="switchTab('matriks')" class="nav-mob flex flex-col items-center justify-center text-slate-400 hover:text-slate-600" data-target="matriks">
+                <i class="fas fa-table text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Matriks</span>
+            </button>
+        </div>
+    </nav>
+
     <div id="print-area" class="print-only">
-        
         <table style="width: 100%; border: 1px solid black; margin-bottom: 20px;">
             <tr>
                 <td style="width: 15%; text-align: center; vertical-align: middle; border: 1px solid black;">
                     <div style="font-size: 30pt; font-weight: bold; color: #333;">
                         <i class="fas fa-university"></i>
                     </div>
-                    <div style="font-size: 8pt; margin-top: 5px;">LOGO UNIV</div>
                 </td>
                 <td style="width: 60%; text-align: center; vertical-align: middle; border: 1px solid black;">
                     <h2 class="uppercase" id="p-univ">UNIVERSITAS ...</h2>
                     <h3 class="uppercase" id="p-fakultas">FAKULTAS ...</h3>
                     <div style="margin-top: 10px; font-weight: bold;">RENCANA PEMBELAJARAN SEMESTER (RPS)</div>
                 </td>
-                <td style="width: 25%; font-size: 10pt; border: 1px solid black; vertical-align: middle;">
-                    <div><strong>Kode Dokumen:</strong></div>
-                    <div style="height: 20px;"></div> </td>
+                <td style="width: 25%; font-size: 10pt; border: 1px solid black; vertical-align: top; padding: 5px;">
+                    <div><strong>No. Dokumen:</strong> ..........</div>
+                </td>
             </tr>
         </table>
 
         <table style="width: 100%; border: 1px solid black; margin-bottom: 20px;">
             <tr style="background-color: #e5e7eb;">
-                <th style="text-align: left;">MATA KULIAH (MK)</th>
-                <th style="text-align: left;">KODE</th>
-                <th style="text-align: left;">RUMPUN MK</th>
-                <th style="text-align: left;">BOBOT (SKS)</th>
-                <th style="text-align: left;">SEMESTER</th>
-                <th style="text-align: left;">TGL PENYUSUNAN</th>
+                <th>MATA KULIAH</th><th>KODE</th><th>RUMPUN</th><th>SKS</th><th>SEM</th><th>TGL</th>
             </tr>
             <tr>
-                <td id="p-mk"></td>
-                <td id="p-kode"></td>
-                <td id="p-rumpun"></td>
-                <td id="p-sks"></td>
-                <td id="p-sem"></td>
-                <td id="p-tgl"></td>
+                <td id="p-mk"></td><td id="p-kode"></td><td id="p-rumpun"></td><td id="p-sks"></td><td id="p-sem"></td><td id="p-tgl"></td>
             </tr>
         </table>
 
         <table style="width: 100%; border: 1px solid black; margin-bottom: 20px;">
             <tr style="background-color: #e5e7eb;">
-                <th rowspan="2" style="vertical-align: middle; width: 15%;">OTORISASI</th>
-                <th style="text-align: left;">Dosen Pengembang RPS</th>
-                <th style="text-align: left;">Koordinator RMK</th>
-                <th style="text-align: left;">Ketua Program Studi</th>
+                <th width="20%">OTORISASI</th>
+                <th>Dosen Pengembang RPS</th>
+                <th>Koordinator RMK</th>
+                <th>Ketua Program Studi</th>
             </tr>
             <tr>
-                <td style="height: 60px; vertical-align: bottom;">
-                    <div style="border-bottom: 1px solid black; width: 80%; margin-bottom: 2px;"></div>
-                    <span id="p-dosen" style="font-weight: bold;"></span>
-                </td>
-                <td style="height: 60px; vertical-align: bottom;">
-                    <div style="border-bottom: 1px solid black; width: 80%; margin-bottom: 2px;"></div>
-                    <span id="p-rmk" style="font-weight: bold;"></span>
-                </td>
-                <td style="height: 60px; vertical-align: bottom;">
-                    <div style="border-bottom: 1px solid black; width: 80%; margin-bottom: 2px;"></div>
-                    <span id="p-kaprodi" style="font-weight: bold;"></span>
-                </td>
+                <td style="text-align: center; vertical-align: middle;"><strong>Tanda Tangan</strong></td>
+                <td style="height: 70px; vertical-align: bottom;"><span id="p-dosen" style="font-weight: bold; text-decoration: underline;"></span></td>
+                <td style="height: 70px; vertical-align: bottom;"><span id="p-rmk" style="font-weight: bold; text-decoration: underline;"></span></td>
+                <td style="height: 70px; vertical-align: bottom;"><span id="p-kaprodi" style="font-weight: bold; text-decoration: underline;"></span></td>
             </tr>
         </table>
 
         <table style="width: 100%; margin-bottom: 20px;">
-            <tr>
-                <th colspan="2" style="text-align: left; background-color: #e5e7eb;">Capaian Pembelajaran (CP)</th>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold;">CPL-PRODI</td>
-                <td id="p-cpl" style="white-space: pre-line;"></td>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold;">CPMK</td>
-                <td id="p-cpmk" style="white-space: pre-line;"></td>
-            </tr>
+            <tr><th colspan="2" style="background-color: #e5e7eb; text-align: left;">Capaian Pembelajaran (CP)</th></tr>
+            <tr><td width="15%" style="font-weight: bold;">CPL-PRODI</td><td id="p-cpl" style="white-space: pre-line;"></td></tr>
+            <tr><td width="15%" style="font-weight: bold;">CPMK</td><td id="p-cpmk" style="white-space: pre-line;"></td></tr>
         </table>
 
         <table style="width: 100%; margin-bottom: 20px;">
+            <tr><td width="20%" style="font-weight: bold; background: #f3f4f6;">Deskripsi MK</td><td id="p-desc" style="white-space: pre-line;"></td></tr>
+            <tr><td width="20%" style="font-weight: bold; background: #f3f4f6;">Pustaka</td><td id="p-pustaka" style="white-space: pre-line;"></td></tr>
             <tr>
-                <td style="width: 20%; font-weight: bold; background-color: #f3f4f6;">Deskripsi Singkat MK</td>
-                <td id="p-desc" style="white-space: pre-line;"></td>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold; background-color: #f3f4f6;">Bahan Kajian / Materi</td>
-                <td id="p-materi_list" style="white-space: pre-line;">(Lihat pada matriks mingguan)</td>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold; background-color: #f3f4f6;">Pustaka</td>
-                <td id="p-pustaka" style="white-space: pre-line;"></td>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold; background-color: #f3f4f6;">Media Pembelajaran</td>
-                <td>
-                    <strong>Perangkat Lunak:</strong> <span id="p-sw"></span><br>
-                    <strong>Perangkat Keras:</strong> <span id="p-hw"></span>
-                </td>
-            </tr>
-            <tr>
-                <td style="width: 20%; font-weight: bold; background-color: #f3f4f6;">Dosen Pengampu</td>
-                <td id="p-dosen-mk"></td>
+                <td width="20%" style="font-weight: bold; background: #f3f4f6;">Media</td>
+                <td>SW: <span id="p-sw"></span><br>HW: <span id="p-hw"></span></td>
             </tr>
         </table>
 
-        <div class="page-break"></div>
-
-        <h3 style="text-align: center; margin-bottom: 10px; text-transform: uppercase;">Rencana Pembelajaran Mingguan</h3>
+        <div class="page-break" style="page-break-before: always;"></div>
+        
+        <h3 style="text-align: center; margin-bottom: 10px;">RENCANA PEMBELAJARAN MINGGUAN</h3>
         <table style="width: 100%;">
             <thead>
-                <tr>
-                    <th style="width: 5%;">Mg Ke-</th>
-                    <th style="width: 15%;">Sub-CPMK<br>(Kemampuan Akhir yang Diharapkan)</th>
-                    <th style="width: 15%;">Bahan Kajian<br>(Materi Pembelajaran)</th>
-                    <th style="width: 15%;">Bentuk & Metode Pembelajaran</th>
-                    <th style="width: 10%;">Waktu</th>
-                    <th style="width: 15%;">Pengalaman Belajar Mahasiswa</th>
-                    <th style="width: 15%;">Kriteria & Indikator Penilaian</th>
-                    <th style="width: 10%;">Bobot (%)</th>
-                </tr>
-                <tr style="font-size: 9pt; text-align: center;">
-                    <td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td><td>(6)</td><td>(7)</td><td>(8)</td>
+                <tr style="background: #e5e7eb;">
+                    <th width="5%">Mg</th>
+                    <th width="15%">Sub-CPMK</th>
+                    <th width="15%">Bahan Kajian</th>
+                    <th width="15%">Metode</th>
+                    <th width="10%">Waktu</th>
+                    <th width="15%">Pengalaman</th>
+                    <th width="15%">Indikator</th>
+                    <th width="10%">Bobot</th>
                 </tr>
             </thead>
-            <tbody id="p-tbody">
-                </tbody>
+            <tbody id="p-tbody"></tbody>
         </table>
-
     </div>
 
-    <style>
-        .label-ui { display: block; font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem; }
-        .input-ui { width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; background-color: #f8fafc; transition: all 0.2s; }
-        .input-ui:focus { outline: none; border-color: #3b82f6; background-color: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .nav-item.active-nav { background-color: #2563eb; color: white; }
-        .nav-item:not(.active-nav) { color: #94a3b8; }
-        .nav-item:not(.active-nav):hover { color: white; }
-    </style>
-
     <script>
-        function showTab(id) {
+        function switchTab(id) {
+            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Show target tab
             document.getElementById('tab-' + id).classList.remove('hidden');
             
-            // Highlight Nav
-            const navs = document.querySelectorAll('.nav-item');
-            navs.forEach(n => n.classList.remove('active-nav'));
-            event.currentTarget.classList.add('active-nav');
+            // Update Desktop Sidebar
+            document.querySelectorAll('.nav-desk').forEach(n => {
+                n.classList.remove('bg-primary', 'active-desk');
+                n.classList.add('text-slate-300'); // inactive style
+            });
+            // Highlight active desktop
+            const activeDesk = document.querySelector(`button[onclick="switchTab('${id}')"].nav-desk`);
+            if(activeDesk) {
+                activeDesk.classList.add('bg-primary', 'active-desk');
+                activeDesk.classList.remove('text-slate-300');
+            }
+
+            // Update Mobile Bottom Nav
+            document.querySelectorAll('.nav-mob').forEach(n => {
+                n.classList.remove('text-primary');
+                n.classList.add('text-slate-400');
+            });
+            const activeMob = document.querySelector(`.nav-mob[data-target="${id}"]`);
+            if(activeMob) {
+                activeMob.classList.add('text-primary');
+                activeMob.classList.remove('text-slate-400');
+            }
+
+            // Show/Hide Floating Add Button (Only on Matriks tab)
+            const fab = document.getElementById('fab-add');
+            if(id === 'matriks') {
+                fab.classList.remove('hidden');
+            } else {
+                fab.classList.add('hidden');
+            }
+
+            // Scroll to top
+            document.getElementById('main-scroll').scrollTop = 0;
         }
 
         function addRow() {
             const tbody = document.getElementById('ui-tbody');
             const rowIdx = tbody.rows.length + 1;
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-50";
+            tr.className = "bg-white fade-in";
             tr.innerHTML = `
-                <td class="p-2"><input type="number" class="w-full p-1 border rounded text-center font-bold" value="${rowIdx}"></td>
-                <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                <td class="p-2"><input type="text" class="w-full p-2 border rounded input-cell" value="TM: 3x50'"></td>
-                <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                <td class="p-2"><textarea rows="4" class="w-full p-2 border rounded resize-y input-cell"></textarea></td>
-                <td class="p-2"><input type="number" class="w-full p-2 border rounded text-center input-cell" placeholder="0"></td>
-                <td class="p-2 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button></td>
+                <td class="p-2"><input type="number" class="w-10 p-2 bg-slate-50 rounded text-center font-bold text-slate-500" value="${rowIdx}"></td>
+                <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                <td class="p-2"><textarea rows="3" class="w-full min-w-[150px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                <td class="p-2"><input type="text" class="w-full min-w-[100px] p-2 border rounded" value="TM: 3x50'"></td>
+                <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                <td class="p-2"><textarea rows="3" class="w-full min-w-[200px] p-2 border rounded resize-none focus:border-blue-500 focus:outline-none"></textarea></td>
+                <td class="p-2"><input type="number" class="w-full min-w-[60px] p-2 border rounded text-center" placeholder="0"></td>
+                <td class="p-2 text-center"><button onclick="this.closest('tr').remove()" class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100"><i class="fas fa-trash-alt"></i></button></td>
             `;
             tbody.appendChild(tr);
+            
+            // Auto scroll to bottom of table
+            tr.scrollIntoView({ behavior: 'smooth' });
         }
 
         function printRPS() {
-            // Transfer Data to Print Section
-            const mapId = (src, dest) => {
-                const val = document.getElementById(src).value;
-                document.getElementById(dest).innerText = val;
+            // Mapping Data
+            const setTxt = (id, target) => {
+                const el = document.getElementById(id);
+                const targetEl = document.getElementById(target);
+                if(el && targetEl) targetEl.innerText = el.value;
             };
 
-            // Header & Info
-            mapId('ui-univ', 'p-univ');
-            mapId('ui-fakultas', 'p-fakultas');
-            mapId('ui-mk', 'p-mk');
-            mapId('ui-kode', 'p-kode');
-            mapId('ui-rumpun', 'p-rumpun');
-            mapId('ui-sks', 'p-sks');
-            mapId('ui-sem', 'p-sem');
-            mapId('ui-tgl', 'p-tgl');
+            setTxt('ui-univ', 'p-univ');
+            setTxt('ui-fakultas', 'p-fakultas');
+            setTxt('ui-mk', 'p-mk');
+            setTxt('ui-kode', 'p-kode');
+            setTxt('ui-rumpun', 'p-rumpun');
+            setTxt('ui-sks', 'p-sks');
+            setTxt('ui-sem', 'p-sem');
+            setTxt('ui-tgl', 'p-tgl');
+            
+            setTxt('ui-dosen', 'p-dosen');
+            setTxt('ui-rmk', 'p-rmk');
+            setTxt('ui-kaprodi', 'p-kaprodi');
 
-            // Otorisasi
-            mapId('ui-dosen', 'p-dosen');
-            mapId('ui-dosen', 'p-dosen-mk');
-            mapId('ui-rmk', 'p-rmk');
-            mapId('ui-kaprodi', 'p-kaprodi');
+            setTxt('ui-cpl', 'p-cpl');
+            setTxt('ui-cpmk', 'p-cpmk');
+            setTxt('ui-desc', 'p-desc');
+            setTxt('ui-pustaka', 'p-pustaka');
+            setTxt('ui-sw', 'p-sw');
+            setTxt('ui-hw', 'p-hw');
 
-            // Desc
-            mapId('ui-cpl', 'p-cpl');
-            mapId('ui-cpmk', 'p-cpmk');
-            mapId('ui-desc', 'p-desc');
-            mapId('ui-pustaka', 'p-pustaka');
-            mapId('ui-sw', 'p-sw');
-            mapId('ui-hw', 'p-hw');
-
-            // Matriks Table
+            // Render Table Rows for Print
             const pBody = document.getElementById('p-tbody');
             pBody.innerHTML = '';
             
@@ -425,19 +480,17 @@
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('input, textarea');
                 const newTr = document.createElement('tr');
+                const val = (i) => inputs[i] ? inputs[i].value.replace(/\n/g, '<br>') : '';
                 
-                // Helper to create valid HTML content (newlines to <br>)
-                const txt = (idx) => inputs[idx].value.replace(/\n/g, '<br>');
-
                 newTr.innerHTML = `
-                    <td style="text-align: center;">${inputs[0].value}</td>
-                    <td>${txt(1)}</td>
-                    <td>${txt(2)}</td>
-                    <td>${txt(3)}</td>
-                    <td style="text-align: center;">${txt(4)}</td>
-                    <td>${txt(5)}</td>
-                    <td>${txt(6)}</td>
-                    <td style="text-align: center;">${inputs[7].value ? inputs[7].value + '%' : ''}</td>
+                    <td style="text-align: center;">${val(0)}</td>
+                    <td>${val(1)}</td>
+                    <td>${val(2)}</td>
+                    <td>${val(3)}</td>
+                    <td style="text-align: center;">${val(4)}</td>
+                    <td>${val(5)}</td>
+                    <td>${val(6)}</td>
+                    <td style="text-align: center;">${val(7)}%</td>
                 `;
                 pBody.appendChild(newTr);
             });
